@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EduRegister — Student Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #0d0d14;
+      --paper: #f5f3ef;
+      --accent: #e84c1e;
+      --accent2: #2563eb;
+      --green: #16a34a;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --white: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      margin: 0;
+    }
+
+    /* NAV */
+    nav {
+      background: var(--ink);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+    .logo span { color: var(--accent); }
+    .nav-right { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-user {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.6);
+    }
+    .nav-user strong { color: #fff; }
+    .logout-btn {
+      padding: 0.4rem 1rem;
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 6px;
+      color: rgba(255,255,255,0.7);
+      background: transparent;
+      font-size: 0.82rem;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: all 0.2s;
+    }
+    .logout-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+    /* TABS */
+    .tab-bar {
+      background: var(--white);
+      border-bottom: 2px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      gap: 0;
+    }
+    .tab {
+      padding: 1rem 1.4rem;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      color: var(--muted);
+      transition: all 0.2s;
+      margin-bottom: -2px;
+    }
+    .tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+    .tab:hover:not(.active) { color: var(--ink); }
+
+    /* CONTENT */
+    .content { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    /* STAT CARDS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.2rem;
+      margin-bottom: 2.5rem;
+    }
+    .stat-card {
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .stat-card.orange::before { background: var(--accent); }
+    .stat-card.blue::before { background: var(--accent2); }
+    .stat-card.green::before { background: var(--green); }
+    .stat-label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.6rem;
+    }
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .stat-sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.3rem; }
+
+    /* SECTION HEADER */
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 0.7rem;
+      margin-bottom: 1.5rem;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .section-count {
+      font-size: 0.8rem;
+      color: var(--muted);
+      background: var(--border);
+      padding: 0.15rem 0.6rem;
+      border-radius: 99px;
+    }
+
+    /* COURSE CARDS */
+    .courses-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.2rem;
+    }
+    .course-card {
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1.4rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .course-card:hover { border-color: var(--ink); transform: translateY(-2px); }
+    .course-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.8rem;
+    }
+    .course-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--ink);
+      flex: 1;
+    }
+    .course-code {
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: var(--ink);
+      color: #fff;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-left: 0.5rem;
+      white-space: nowrap;
+    }
+    .course-meta {
+      font-size: 0.83rem;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+    .course-meta span { margin-right: 1.2rem; }
+    .seats-bar {
+      background: var(--border);
+      border-radius: 4px;
+      height: 5px;
+      margin: 0.8rem 0;
+      overflow: hidden;
+    }
+    .seats-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: var(--green);
+      transition: width 0.4s;
+    }
+    .seats-fill.low { background: var(--accent); }
+    .seats-text {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    .reg-btn {
+      width: 100%;
+      padding: 0.6rem;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      background: transparent;
+      color: var(--ink);
+      transition: all 0.2s;
+    }
+    .reg-btn:hover:not(:disabled) { background: var(--ink); color: #fff; }
+    .reg-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .reg-btn.registered {
+      background: #f0fdf4;
+      border-color: var(--green);
+      color: var(--green);
+      cursor: default;
+    }
+
+    /* ALERT */
+    #alert-global {
+      display: none;
+      position: fixed;
+      top: 75px; right: 1.5rem;
+      max-width: 380px;
+      padding: 1rem 1.2rem;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      z-index: 999;
+      animation: slideIn 0.3s ease;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    }
+    #alert-global.error { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+    #alert-global.success { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+    #alert-global.info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    @keyframes slideIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
+
+    /* ENROLLED CARD */
+    .enrolled-card {
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-left: 4px solid var(--accent2);
+      border-radius: 12px;
+      padding: 1.2rem 1.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.8rem;
+    }
+    .enrolled-info .ename {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .enrolled-info .emeta {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+    }
+    .time-chip {
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: #eff6ff;
+      color: var(--accent2);
+      padding: 0.3rem 0.8rem;
+      border-radius: 99px;
+    }
+
+    /* RECOMMEND */
+    .rec-card {
+      background: linear-gradient(135deg, #fef3c7, #fffbeb);
+      border: 2px solid #fcd34d;
+      border-radius: 12px;
+      padding: 1.2rem 1.4rem;
+      margin-bottom: 0.8rem;
+    }
+    .rec-card .rec-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #92400e;
+    }
+    .rec-card .rec-code {
+      font-size: 0.78rem;
+      color: #b45309;
+      margin-top: 0.2rem;
+    }
+    .rec-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #fef3c7;
+      color: #92400e;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--muted);
+    }
+    .empty-state p { margin-top: 0.5rem; font-size: 0.9rem; }
+
+    @media(max-width: 600px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav>
+  <div class="logo">Edu<span>Register</span></div>
+  <div class="nav-right">
+    <div class="nav-user">Welcome, <strong id="nav-name">Student</strong></div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<!-- Tab Bar -->
+<div class="tab-bar">
+  <div class="tab active" id="t-overview" onclick="showTab('overview')">Overview</div>
+  <div class="tab" id="t-courses" onclick="showTab('courses')">All Courses</div>
+  <div class="tab" id="t-enrolled" onclick="showTab('enrolled')">My Courses</div>
+  <div class="tab" id="t-recommend" onclick="showTab('recommend')">Recommendations</div>
+</div>
+
+<div id="alert-global"></div>
+
+<div class="content">
+
+  <!-- OVERVIEW TAB -->
+  <div class="tab-pane active" id="pane-overview">
+    <div class="stats-grid">
+      <div class="stat-card orange">
+        <div class="stat-label">Available Courses</div>
+        <div class="stat-num" id="stat-total">—</div>
+        <div class="stat-sub">Total in catalog</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-label">Registered</div>
+        <div class="stat-num" id="stat-registered">—</div>
+        <div class="stat-sub">Courses enrolled</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-label">Open Seats</div>
+        <div class="stat-num" id="stat-seats">—</div>
+        <div class="stat-sub">Across all courses</div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-title">Quick Look — Available Courses</div>
+    </div>
+    <div class="courses-grid" id="overview-courses"></div>
+  </div>
+
+  <!-- ALL COURSES TAB -->
+  <div class="tab-pane" id="pane-courses">
+    <div class="section-header">
+      <div class="section-title">Course Catalog</div>
+      <div class="section-count" id="courses-count">0 courses</div>
+    </div>
+    <div class="courses-grid" id="all-courses"></div>
+  </div>
+
+  <!-- MY ENROLLED TAB -->
+  <div class="tab-pane" id="pane-enrolled">
+    <div class="section-header">
+      <div class="section-title">My Enrolled Courses</div>
+      <div class="section-count" id="enrolled-count">0 courses</div>
+    </div>
+    <div id="enrolled-list"></div>
+  </div>
+
+  <!-- RECOMMENDATIONS TAB -->
+  <div class="tab-pane" id="pane-recommend">
+    <div class="section-header">
+      <div class="section-title">Smart Recommendations</div>
+    </div>
+    <p style="color:var(--muted);font-size:.88rem;margin-bottom:1.5rem;">
+      Based on your AI-related enrollments, we suggest these courses:
+    </p>
+    <div id="rec-list"></div>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
